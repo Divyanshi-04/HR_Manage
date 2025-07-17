@@ -1,57 +1,95 @@
+// mentor_dash.js
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCV872lfYENRzt2iAARrUHig7W95qQOJLI",
+  authDomain: "hr-manage-484e5.firebaseapp.com",
+  projectId: "hr-manage-484e5",
+  storageBucket: "hr-manage-484e5.appspot.com",
+  messagingSenderId: "142887546287",
+  appId: "1:142887546287:web:5b3813a38a666834a3935a",
+  measurementId: "G-TTRB6W6G0K"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Show interns based on status
+function renderInterns(interns, tbody) {
+  tbody.innerHTML = "";
+  interns.forEach(intern => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${intern.id}</td>
+      <td>${intern.name}</td>
+      <td>${intern.branch}</td>
+      <td>${intern.location}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+// DOM Ready
 document.addEventListener("DOMContentLoaded", () => {
-  const tabs = document.querySelectorAll(".tab");
-  const tabContent = document.querySelector(".tab-content");
-  const tableBody = tabContent.querySelector("tbody");
   const logoutBtn = document.querySelector(".home");
+  const newInternsBody = document.querySelector(".intern-table tbody"); // For New Interns
+  const ongoingBtn = document.querySelectorAll(".tab")[1];
+  const completedBtn = document.querySelectorAll(".tab")[2];
 
-  // Sample data
-  const mentorData = {
-    "New Interns": [
-      { id: 1, name: "Bhavaya Aggarwal", branch: "ECE", location: "Delhi" },
-      { id: 2, name: "Naina Verma", branch: "CSE", location: "Pune" },
-    ],
-    Ongoing: [{ id: 3, name: "Ravi Kumar", branch: "IT", location: "Chennai" }],
-    Completed: [
-      { id: 4, name: "Simran Kaul", branch: "ME", location: "Noida" },
-    ],
-  };
+  const pageTitle = document.querySelector(".page-title");
 
-  // Function to update the table
-  function updateTable(tabName) {
-    const interns = mentorData[tabName] || [];
-    const rows = interns
-      .map(
-        (intern) => `
-        <tr>
-          <td>${intern.id}</td>
-          <td>${intern.name}</td>
-          <td>${intern.branch}</td>
-          <td>${intern.location}</td>
-        </tr>
-      `
-      )
-      .join("");
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // Show mentor's name
+      const docRef = doc(db, "mentors", user.uid);
+      const docSnap = await getDoc(docRef);
+      const name = docSnap.exists() ? docSnap.data().name : "Mentor";
+      pageTitle.textContent = `Welcome ${name}`;
 
-    tableBody.innerHTML = rows;
+      // Fetch interns
+      const internsCol = collection(docRef, "interns");
+      const internSnaps = await getDocs(internsCol);
 
-    const title = tabContent.querySelector("h2");
-    title.textContent = tabName;
-  }
+      const interns = [];
+      internSnaps.forEach(doc => interns.push(doc.data()));
 
-  // Tab switching
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      tabs.forEach((t) => t.classList.remove("active"));
-      tab.classList.add("active");
-      updateTable(tab.textContent.trim());
+      // Show only New Interns initially
+      renderInterns(interns.filter(i => i.status === "New Intern"), newInternsBody);
+
+      // When tabs clicked
+      ongoingBtn.addEventListener("click", () => {
+        renderInterns(interns.filter(i => i.status === "Ongoing"), newInternsBody);
+      });
+
+      completedBtn.addEventListener("click", () => {
+        renderInterns(interns.filter(i => i.status === "Completed"), newInternsBody);
+      });
+
+    } else {
+      // Not logged in
+      window.location.href = "mentor_login.html";
+    }
+  });
+
+  // Logout button
+  logoutBtn.addEventListener("click", () => {
+    signOut(auth).then(() => {
+      window.location.href = "mentor_login.html";
     });
   });
-
-  // Logout function
-  logoutBtn.addEventListener("click", () => {
-    window.location.href = "mentor_login.html";
-  });
-
-  // Default tab
-  updateTable("New Interns");
 });

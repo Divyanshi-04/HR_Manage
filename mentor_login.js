@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Redirect to mentor dashboard
-      window.location.href = "mentor_dashboard.html";
+      window.location.href = "mentor_dash.html";
     } else {
       alert("Invalid credentials.\nTry mentor@example.com / mentor123");
     }

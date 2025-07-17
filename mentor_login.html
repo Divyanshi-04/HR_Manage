@@ -1,3 +1,4 @@
+<!-- Paste this full code in your mentor_login.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -74,7 +75,7 @@
     </div>
   </div>
 
-  <!-- Firebase Scripts -->
+  <!-- ✅ Firebase Scripts -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import {
@@ -155,13 +156,7 @@
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const docRef = doc(db, "mentors", user.uid);
-        const snap = await getDoc(docRef);
-        loginForm.style.display = "none";
-        signupForm.style.display = "none";
-        dashboard.style.display = "block";
-        document.getElementById("mentor-name-display").textContent = snap.exists() ? snap.data().name : user.email;
-        document.getElementById("mentor-email-display").textContent = user.email;
+  window.location.href = "mentor_dash.html";
       } else {
         dashboard.style.display = "none";
         loginForm.style.display = "block";
