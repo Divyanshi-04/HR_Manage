@@ -5,71 +5,395 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HR-Dash</title>
     <link rel="stylesheet" href="hr_dash.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
     <div class="back">
         <header>
-        <div class="logo">
-            <img src="login_img/logo_dr.jpeg" alt="logo"/>
-            <h1>Solid State Physics Laboratory</h1>
-            <button class="home">Logout</button>
-        </div>
-    </header>
+            <div class="logo">
+                <img src="login_img/logo_dr.jpeg" alt="logo"/>
+                <h1>Solid State Physics Laboratory</h1>
+                <button class="home">Logout</button>
+            </div>
+        </header>
         <video class="back-vid" autoplay loop muted playsinline src="login_img/bg_pro.mp4" type="video/mp4"></video>
         <header class="head">
-            <h1 class="page-title">
-                HR Dashboard
-            </h1>
-            
+            <h1 class="page-title">HR Dashboard</h1>
         </header>
         <button class="add">+ Add New Intern</button>
 
         <div class="tab-cont">
-            <div class="card">
-                <button class="tab">New/Assigned</button>
-                <button class="tab">Ongoing</button>
-                <button class="tab">Completed</button>
-                <button class="tab">Issued Certificate</button>
-            </div>
+    <div class="card">
+        <button class="tab">New/Assigned</button>
+        <button class="tab">Ongoing</button>
+        <button class="tab">Completed</button>
+        <button class="tab">Issued Certificate</button>
+    </div>
 
-            <div class="tab-content">
-                <div class="card">
-                    <h2>New/Assigned</h2>
-                    <table class="intern-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Branch</th>
-                                <th>Location</th>
-                                <th>Mentor</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Bhavaya Aggarwal</td>
-                                <td>ECE</td>
-                                <td>Delhi</td>
-                                <td>-</td>
-                                <td>New</td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>Bhavaya Aggarwal</td>
-                                <td>ECE</td>
-                                <td>Delhi</td>
-                                <td>-</td>
-                                <td>New</td>
-                            </tr>
-                        </tbody>
-                    </table>
+    <!-- New/Assigned Content (hidden when Completed is active) -->
+    <div class="tab-content" data-status="new">
+        <div class="card">
+            <h2>New/Assigned</h2>
+            <table class="intern-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Branch</th>
+                        <th>Location</th>
+                        <th>Mentor</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Bhavaya Aggarwal</td>
+                        <td>ECE</td>
+                        <td>Delhi</td>
+                        <td>-</td>
+                        <td>New</td>
+                        <td>
+                            <button class="action-btn view">View</button>
+                            <button class="action-btn assign">Assign</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    
+
+    <!-- Add Intern Modal -->
+    <div id="addInternModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add New Intern</h2>
+            
+            <div class="input-method">
+                <button class="method-btn active" data-method="webForm">Fill Web Form</button>
+                <button class="method-btn" data-method="csv">Upload CSV</button>
+                <button class="method-btn" data-method="excel">Upload Excel</button>
+            </div>
+            
+            <!-- Web Form -->
+            <div id="webForm" class="method-content active">
+                <form id="internForm">
+                    <div class="form-section">
+                        <h3>Personal Details</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fullName">Full Name*</label>
+                                <input type="text" id="fullName" name="fullName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="dob">Date of Birth*</label>
+                                <input type="date" id="dob" name="dob" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="age">Age</label>
+                                <input type="number" id="age" name="age" readonly>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="presentAddress">Present Address*</label>
+                                <textarea id="presentAddress" name="presentAddress" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="permanentAddress">Permanent Address*</label>
+                                <textarea id="permanentAddress" name="permanentAddress" required></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="mobile">Mobile Number*</label>
+                                <input type="tel" id="mobile" name="mobile" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email ID*</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="aadhar">Aadhar Number*</label>
+                            <input type="text" id="aadhar" name="aadhar" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h3>Educational Details</h3>
+                        <div id="educationContainer">
+                            <div class="education-entry">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Qualification*</label>
+                                        <input type="text" name="qualification[]" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Institution Name*</label>
+                                        <input type="text" name="institution[]" required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Semester/Grades*</label>
+                                        <input type="text" name="grades[]" required>
+                                    </div>
+                                    <button type="button" class="remove-edu-btn">Remove</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" id="addEducation" class="add-more-btn">+ Add Education</button>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h3>Additional Information</h3>
+                        <div class="form-group">
+                            <label>Family Members in Foreign Organizations?</label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="foreignFamily" value="yes"> Yes</label>
+                                <label><input type="radio" name="foreignFamily" value="no" checked> No</label>
+                            </div>
+                            <textarea id="foreignFamilyDetails" name="foreignFamilyDetails" placeholder="If yes, provide details" style="display:none;"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Prior Work Experience?</label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="workExperience" value="yes"> Yes</label>
+                                <label><input type="radio" name="workExperience" value="no" checked> No</label>
+                            </div>
+                            <textarea id="workExperienceDetails" name="workExperienceDetails" placeholder="If yes, provide details" style="display:none;"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Prior Association with DRDO?</label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="drdoAssociation" value="yes"> Yes</label>
+                                <label><input type="radio" name="drdoAssociation" value="no" checked> No</label>
+                            </div>
+                            <textarea id="drdoAssociationDetails" name="drdoAssociationDetails" placeholder="If yes, provide details" style="display:none;"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h3>Documents</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="photo">Photo Upload*</label>
+                                <input type="file" id="photo" name="photo" accept="image/*" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="signature">Digital Signature Upload*</label>
+                                <input type="file" id="signature" name="signature" accept="image/*" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" name="declaration" required> I declare that all information provided is true and correct*
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="cancel-btn">Cancel</button>
+                        <button type="submit" class="submit-btn">Add Intern</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- CSV Upload -->
+            <div id="csv" class="method-content">
+                <div class="upload-section">
+                    <input type="file" id="csvUpload" accept=".csv">
+                    <button class="upload-btn">Upload CSV</button>
+                    <div class="upload-instructions">
+                        <p>CSV should contain columns for all required fields in the web form.</p>
+                    </div>
                 </div>
-                
+            </div>
+            
+            <!-- Excel Upload -->
+            <div id="excel" class="method-content">
+                <div class="upload-section">
+                    <input type="file" id="excelUpload" accept=".xlsx,.xls">
+                    <button class="upload-btn">Upload Excel</button>
+                    <div class="upload-instructions">
+                        <p>Excel file should contain sheets with all required fields in the web form.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-  <script src="hr_dash.js"></script>  
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Intern Details Preview</h2>
+            <div id="internDetails" class="preview-content"></div>
+            <div class="modal-actions">
+                <button class="view-btn">View Full Details</button>
+                <button class="accept-btn">Accept Intern</button>
+                <button class="reject-btn">Reject Intern</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Full Details Modal -->
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Intern Full Details</h2>
+            <div id="fullDetails" class="preview-content"></div>
+            <div class="modal-actions">
+                <button class="close-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accept Intern Modal -->
+    <div id="acceptModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Assign Mentor</h2>
+            <form id="acceptForm">
+                <div class="form-group">
+                    <label for="internId">Intern ID</label>
+                    <input type="text" id="internId" name="internId" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="internName">Name</label>
+                    <input type="text" id="internName" name="internName" readonly>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="branch">Branch*</label>
+                        <select id="branch" name="branch" required>
+                            <option value="">Select Branch</option>
+                            <option value="ECE">ECE</option>
+                            <option value="CSE">CSE</option>
+                            <option value="ME">ME</option>
+                            <option value="EE">EE</option>
+                            <option value="IT">IT</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="duration">Duration (months)*</label>
+                        <input type="number" id="duration" name="duration" min="1" max="12" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="project">Assign Project*</label>
+                    <textarea id="project" name="project" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="project">Assign Mentor*</label>
+                    <textarea id="project" name="project" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn">Cancel</button>
+                    <button type="submit" class="submit-btn">Assign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Certificate Issuance Modal -->
+<div id="certificateModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Issue Certificate</h2>
+        <form id="certificateForm" class="certificate-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="certInternId">Intern ID</label>
+                    <input type="text" id="certInternId" name="internId" required>
+                </div>
+                <div class="form-group">
+                    <label for="certName">Name</label>
+                    <input type="text" id="certName" name="name" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="certCollege">College</label>
+                    <input type="text" id="certCollege" name="college" required>
+                </div>
+                <div class="form-group">
+                    <label for="certBranch">Branch</label>
+                    <input type="text" id="certBranch" name="branch" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="certCompletion">Completion Remarks</label>
+                <textarea id="certCompletion" name="completionRemarks" required></textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="certMentor">Mentor Name</label>
+                    <input type="text" id="certMentor" name="mentorName" required>
+                </div>
+                <div class="form-group">
+                    <label for="certAttendance">Attendance (hours)</label>
+                    <input type="number" id="certAttendance" name="attendance" min="1" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="certRemarks">Final Remarks</label>
+                <textarea id="certRemarks" name="finalRemarks" required></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-cancel">Cancel</button>
+                <button type="submit" class="btn btn-issue">Generate & Download Certificate</button>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+
+    <!-- Reject Intern Modal -->
+    <div id="rejectModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Reject Intern</h2>
+            <form id="rejectForm">
+                <div class="form-group">
+                    <label for="rejectInternId">Intern ID</label>
+                    <input type="text" id="rejectInternId" name="rejectInternId" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="rejectInternName">Name</label>
+                    <input type="text" id="rejectInternName" name="rejectInternName" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="alternativeMentor">Suggest Alternative Mentor (optional)</label>
+                    <input type="text" id="alternativeMentor" name="alternativeMentor">
+                </div>
+                <div class="form-group">
+                    <label for="rejectReason">Reason for Rejection*</label>
+                    <textarea id="rejectReason" name="rejectReason" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn">Cancel</button>
+                    <button type="submit" class="submit-btn">Confirm Rejection</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="hr_dash.js"></script>
 </body>
 </html>
