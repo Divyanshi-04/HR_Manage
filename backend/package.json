@@ -1,0 +1,13 @@
+{
+  "name": "drdo-backend",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^8.0.0"
+  }
+}
